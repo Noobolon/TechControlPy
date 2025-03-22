@@ -18,7 +18,6 @@ def calcDistance(tech, client):
 
     tech_coord = getCoordsFromPerson(tech)
     client_coord = getCoordsFromPerson(client)
-    print(tech_coord, client_coord)
     
     result = geodesic(client_coord, tech_coord).km # Retorna em quilômetros
     result = round(result, 2)

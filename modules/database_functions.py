@@ -15,39 +15,50 @@ supabase: Client = create_client(url, key)
 # Pega os clientes com status 0 (ticket aberto)
 def getAvailableClients():
     try:
-        clientes_disponiveis = (
+        available_clients = (
             supabase.table("client")
             .select("*")
             .eq('status', '0')
             .execute()
         )
-        return clientes_disponiveis.data
+        return available_clients.data
     
     except Exception as error:
         print(error)
         return None
 
-# Pega os técnicos com status 0 (disponível)
+# Pega os técnicos com status 0 (disponíveis)
 def getAvailableTechs():
     try:
-        tecnicos_disponiveis = (
+        available_technicians = (
             supabase.table("maintenance")
             .select("*")
             .eq('status', '0')
             .execute()
         )
-        return tecnicos_disponiveis.data
+        return available_technicians.data
     
     except Exception as error:
         print(error)
         return None
 
 def createNewService(client, tech):
-    new_service = {
-        "fk_id_client": client["id_client"],
-        "fk_id_maintenance": tech["id_maintenance"],
-        "status": 0
-    }
-    supabase.table("service").insert(new_service).execute()
-    print("Novo ticket criado.")
+    try:
+        new_service = {
+            "fk_id_client": client["id_client"],
+            "fk_id_maintenance": tech["id_maintenance"],
+            "status": 0
+        }
+        service = supabase.table("service").insert(new_service).execute()
+
+        if service: 
+            return service
+        else:
+            return None
+
+    except Exception as error:
+        print(error)
+        return None
+
+
 
