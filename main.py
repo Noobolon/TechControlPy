@@ -7,6 +7,10 @@ from modules.calc_functions import *
 
 app = FastAPI()
 
+
+
+# Rotas GET
+
 @app.get("/available_techs/")
 async def available_techs():
   available_techs = getAvailableTechs()
@@ -14,31 +18,6 @@ async def available_techs():
     return {"available_maintenance": available_techs}
   else:
     raise HTTPException(status_code=404, detail="Nenhum técnico disponível.")
-
-
-@app.put("/service/{service_id}/{tech_id}/accept")
-async def accept_service(service_id: int, tech_id: int):
-
-  
-  service = getServiceFromId(service_id)
-
-  # return {"response":  table_tech_id}
-
-  if service["fk_id_maintenance"] == tech_id:
-    accepted_service = acceptService(service)
-
-    if accepted_service:
-      results = {"service": accepted_service}
-      return results
-    
-    else:
-      raise HTTPException(status_code=404, detail="Erro ao aceitar serviço.")
-  else:
-    raise HTTPException(status_code=404, detail="Erro: serviço não contém um técnico com esse ID.")
-
-
-
-# INCOMPLETO
 
 # Função de pesquisar por serviços
 @app.get("/search_clients/{tech_id}")
@@ -77,3 +56,24 @@ def search_clients(tech_id: int):
     scored_clients.sort(key=lambda x: x["score"])
     
     return { "available_clients": scored_clients }
+
+
+
+# Rotas PUT
+
+@app.put("/service/{service_id}/{tech_id}/accept")
+async def accept_service(service_id: int, tech_id: int):
+
+  service = getServiceFromId(service_id)
+
+  if service["fk_id_maintenance"] == tech_id:
+    accepted_service = acceptService(service)
+
+    if accepted_service:
+      results = {"service": accepted_service}
+      return results
+    
+    else:
+      raise HTTPException(status_code=404, detail="Erro ao aceitar serviço.")
+  else:
+    raise HTTPException(status_code=404, detail="Erro: serviço não contém um técnico com esse ID.")

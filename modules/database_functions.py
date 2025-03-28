@@ -10,7 +10,10 @@ url: str = os.environ.get("SUPABASE_URL")
 key: str = os.environ.get("SUPABASE_KEY")
 supabase: Client = create_client(url, key)
 
+
+
 # Funções do banco de dados
+
 
 
 # Clientes / Técnicos
@@ -60,6 +63,7 @@ def getTechFromId(tech_id):
     except Exception as error:
         print(error)
         return None
+
 
 
 # Serviços
