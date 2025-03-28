@@ -12,6 +12,9 @@ supabase: Client = create_client(url, key)
 
 # Funções do banco de dados
 
+
+# Clientes / Técnicos
+
 # Pega os clientes com status 0 (ticket aberto)
 def getAvailableClients():
     try:
@@ -42,6 +45,58 @@ def getAvailableTechs():
         print(error)
         return None
 
+
+# Serviços
+
+# Pegar serviços abertos
+def getOpenServices(tech_id):
+
+    if tech_id: # Se um ID de técnico for informado na função, retornar os serviços relacionados à ele
+        try:
+            open_services = (
+                supabase.table("service")
+                .select("*")
+                .eq('status', '0')
+                .eq('fk_id_maintenance', tech_id)
+                .execute()
+            )
+            return open_services.data
+        
+        except Exception as error:
+            print(error)
+            return None
+    else:
+        try:
+            open_services = (
+                supabase.table("service")
+                .select("*")
+                .eq('status', '0')
+                .execute()
+            )
+            return open_services.data
+        
+        except Exception as error:
+            print(error)
+            return None
+
+# Pegar serviço com o ID informado
+def getServiceFromId(service_id):
+
+    try:
+        service_id = int(service_id)
+        service = (
+            supabase.table("service")
+            .select("*")
+            .eq('id_service', service_id)
+            .execute()
+        )
+        return service.data[0]
+    
+    except Exception as error:
+        print(error)
+        return None
+
+# Criar serviço com os dados informados
 def createNewService(client, tech):
     try:
         new_service = {
@@ -61,4 +116,36 @@ def createNewService(client, tech):
         return None
 
 
+def acceptService(service):
 
+    try:
+        service_id = int(service['id_service'])
+
+        accepted_service = (
+            supabase.table("service")
+            .update({"status": 1}) 
+            .eq('id_service', service_id)
+            .execute() 
+        )
+
+        # Atualiza o status e a chave estrangeira do técnico 
+        change_status_tech = (
+            supabase.table("maintenance")
+            .update({"status": 1})
+            .eq('id_maintenance', service['fk_id_maintenance'])
+            .execute()
+        )
+
+        # Atualiza o status do cliente
+        change_status_client = (
+            supabase.table("client")
+            .update({"status": 1})
+            .eq('id_client', service['fk_id_client'])
+            .execute()
+        )
+
+        return accepted_service
+
+    except Exception as error:
+        print(error)
+        return None
