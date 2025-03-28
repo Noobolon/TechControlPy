@@ -44,6 +44,22 @@ def getAvailableTechs():
     except Exception as error:
         print(error)
         return None
+    
+# Pega um técnico pelo ID com status 0
+def getTechFromId(tech_id):
+    try:
+        tech = (
+            supabase.table("maintenance")
+            .select("*")
+            .eq('id_maintenance', tech_id)
+            .eq('status', '0')
+            .execute()
+        )
+        return tech.data[0]
+
+    except Exception as error:
+        print(error)
+        return None
 
 
 # Serviços
@@ -116,6 +132,7 @@ def createNewService(client, tech):
         return None
 
 
+# Aceitar um serviço
 def acceptService(service):
 
     try:
@@ -132,6 +149,41 @@ def acceptService(service):
         change_status_tech = (
             supabase.table("maintenance")
             .update({"status": 1})
+            .eq('id_maintenance', service['fk_id_maintenance'])
+            .execute()
+        )
+
+        # Atualiza o status do cliente
+        change_status_client = (
+            supabase.table("client")
+            .update({"status": 1})
+            .eq('id_client', service['fk_id_client'])
+            .execute()
+        )
+
+        return accepted_service
+
+    except Exception as error:
+        print(error)
+        return None
+    
+
+# Completar um serviço e mudar o status do cliente e técnico
+def completeService(service):
+    try:
+        service_id = int(service['id_service'])
+
+        accepted_service = (
+            supabase.table("service")
+            .update({"status": 1}) 
+            .eq('id_service', service_id)
+            .execute() 
+        )
+
+        # Atualiza o status e a chave estrangeira do técnico 
+        change_status_tech = (
+            supabase.table("maintenance")
+            .update({"status": 0})
             .eq('id_maintenance', service['fk_id_maintenance'])
             .execute()
         )
