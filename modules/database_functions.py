@@ -65,6 +65,22 @@ def getTechFromId(tech_id):
         return None
 
 
+# Pegar clinte pelo ID com status 0
+def getClientFromId(client_id):
+    try:
+        client = (
+            supabase.table("client")
+            .select("*")
+            .eq('id_client', client_id)
+            .eq('status', '0')
+            .execute()
+        )
+        return client.data[0]
+
+    except Exception as error:
+        print(error)
+        return None
+
 
 # Serviços
 

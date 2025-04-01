@@ -4,10 +4,7 @@ from fastapi import FastAPI, HTTPException
 from modules.database_functions import *
 from modules.calc_functions import *
 
-
 app = FastAPI()
-
-
 
 # Rotas GET
 
@@ -26,9 +23,9 @@ def search_clients(tech_id: int):
     tech = getTechFromId(tech_id)
     
     if not tech:
-      raise HTTPException(status_code=404, detail="Technician not found or not available")
+      raise HTTPException(status_code=404, detail="Técnico não encontrado.")
     
-    
+  
     available_clients = getAvailableClients()
     if not available_clients:
       raise HTTPException(status_code=404, detail="Nenhum cliente encontrado.")
@@ -61,6 +58,27 @@ def search_clients(tech_id: int):
 
 # Rotas PUT
 
+# Criar serviço
+@app.put("/service/{client_id}/{tech_id}/create")
+async def create_service(client_id: int, tech_id: int):
+
+  client = getClientFromId(client_id)
+  tech = getTechFromId(tech_id)
+
+  if client and tech:
+    new_service = createNewService(client, tech)
+
+    if new_service:
+      results = {"service": new_service}
+      return results
+    
+    else:
+      raise HTTPException(status_code=404, detail="Erro ao criar serviço.")
+  else:
+    raise HTTPException(status_code=404, detail="Erro: cliente ou técico não encontrado.")
+
+
+# Aceitar serviço como técnico
 @app.put("/service/{service_id}/{tech_id}/accept")
 async def accept_service(service_id: int, tech_id: int):
 
@@ -77,3 +95,5 @@ async def accept_service(service_id: int, tech_id: int):
       raise HTTPException(status_code=404, detail="Erro ao aceitar serviço.")
   else:
     raise HTTPException(status_code=404, detail="Erro: serviço não contém um técnico com esse ID.")
+  
+
