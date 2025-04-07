@@ -8,14 +8,6 @@ app = FastAPI()
 
 # Rotas GET
 
-# @app.get("/available_techs/")
-# async def available_techs():
-#   available_techs = getAvailableTechs()
-#   if available_techs:
-#     return {"available_maintenance": available_techs}
-#   else:
-#     raise HTTPException(status_code=404, detail="Nenhum técnico disponível.")
-
 # Função de pesquisar por serviços
 @app.get("/search_clients/{tech_id}")
 def search_clients(tech_id: int):
@@ -124,7 +116,7 @@ async def complete_service(service_id: int, tech_id: int):
 # Rotas DELETE
 
 # Cancelar serviço enviado
-@app.delete("/service/{service_id}/{tech_id}/delete")
+@app.delete("/service/{service_id}/{tech_id}/cancel")
 async def cancel_service(service_id: int, tech_id: int):
 
   service = getServiceFromId(service_id)
