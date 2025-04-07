@@ -8,13 +8,13 @@ app = FastAPI()
 
 # Rotas GET
 
-@app.get("/available_techs/")
-async def available_techs():
-  available_techs = getAvailableTechs()
-  if available_techs:
-    return {"available_maintenance": available_techs}
-  else:
-    raise HTTPException(status_code=404, detail="Nenhum técnico disponível.")
+# @app.get("/available_techs/")
+# async def available_techs():
+#   available_techs = getAvailableTechs()
+#   if available_techs:
+#     return {"available_maintenance": available_techs}
+#   else:
+#     raise HTTPException(status_code=404, detail="Nenhum técnico disponível.")
 
 # Função de pesquisar por serviços
 @app.get("/search_clients/{tech_id}")
@@ -56,10 +56,10 @@ def search_clients(tech_id: int):
 
 
 
-# Rotas PUT
+# Rotas POST
 
 # Criar serviço
-@app.put("/service/{client_id}/{tech_id}/create")
+@app.post("/service/{client_id}/{tech_id}/create")
 async def create_service(client_id: int, tech_id: int):
 
   client = getClientFromId(client_id)
@@ -77,6 +77,9 @@ async def create_service(client_id: int, tech_id: int):
   else:
     raise HTTPException(status_code=404, detail="Erro: cliente ou técico não encontrado.")
 
+
+
+# Rotas PUT
 
 # Aceitar serviço como técnico
 @app.put("/service/{service_id}/{tech_id}/accept")
@@ -97,3 +100,44 @@ async def accept_service(service_id: int, tech_id: int):
     raise HTTPException(status_code=404, detail="Erro: serviço não contém um técnico com esse ID.")
   
 
+# Concluir serviço
+@app.put("/service/{service_id}/{tech_id}/complete")
+async def complete_service(service_id: int, tech_id: int):
+
+  service = getServiceFromId(service_id)
+
+  if service["fk_id_maintenance"] == tech_id:
+
+    completed_service = completeService(service)
+
+    if completed_service:
+      return {"service": completed_service}
+    else:
+      raise HTTPException(status_code=404, detail="Erro ao completar serviço.")
+
+    
+  else:
+    raise HTTPException(status_code=404, detail="Erro: serviço não contém um técnico com esse ID.")
+
+
+
+# Rotas DELETE
+
+# Cancelar serviço enviado
+@app.delete("/service/{service_id}/{tech_id}/delete")
+async def cancel_service(service_id: int, tech_id: int):
+
+  service = getServiceFromId(service_id)
+
+  if service["fk_id_maintenance"] == tech_id:
+
+    canceled_service = cancelService(service)
+
+    if canceled_service:
+      return {"service": canceled_service}
+    else:
+      raise HTTPException(status_code=404, detail="Erro ao completar serviço.")
+
+    
+  else:
+    raise HTTPException(status_code=404, detail="Erro: serviço não contém um técnico com esse ID.")

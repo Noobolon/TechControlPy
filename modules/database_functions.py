@@ -165,7 +165,7 @@ def acceptService(service):
             .execute() 
         )
 
-        # Atualiza o status e a chave estrangeira do técnico 
+        # Atualiza o status do técnico 
         change_status_tech = (
             supabase.table("maintenance")
             .update({"status": 1})
@@ -188,19 +188,51 @@ def acceptService(service):
         return None
     
 
-# Completar um serviço e mudar o status do cliente e técnico
+# Completar um serviço 
 def completeService(service):
     try:
         service_id = int(service['id_service'])
 
-        accepted_service = (
+        concluded_service = (
             supabase.table("service")
-            .update({"status": 1}) 
+            .update({"status": 2}) 
             .eq('id_service', service_id)
             .execute() 
         )
 
-        # Atualiza o status e a chave estrangeira do técnico 
+        change_status_tech = (
+            supabase.table("maintenance")
+            .update({"status": 0}) # Torna o status do técnico disponível novamente
+            .eq('id_maintenance', service['fk_id_maintenance'])
+            .execute()
+        )
+
+        change_status_client = (
+            supabase.table("client")
+            .update({"status": 2}) # Status 2: serviço completo
+            .eq('id_client', service['fk_id_client'])
+            .execute()
+        )
+
+        return concluded_service
+
+    except Exception as error:
+        print(error)
+        return None
+    
+# Cancelar serviço
+def cancelService(service):
+    try:
+        service_id = int(service['id_service'])
+
+        # Remove do supabase
+        canceled_service = (
+            supabase.table("service")
+            .delete()
+            .eq('id_service', service_id)
+            .execute() 
+        )
+
         change_status_tech = (
             supabase.table("maintenance")
             .update({"status": 0})
@@ -208,15 +240,14 @@ def completeService(service):
             .execute()
         )
 
-        # Atualiza o status do cliente
         change_status_client = (
             supabase.table("client")
-            .update({"status": 1})
+            .update({"status": 0}) # Abre o ticket do cliente novamente
             .eq('id_client', service['fk_id_client'])
             .execute()
         )
 
-        return accepted_service
+        return canceled_service
 
     except Exception as error:
         print(error)
