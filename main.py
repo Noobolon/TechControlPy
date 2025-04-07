@@ -1,8 +1,10 @@
-# from time import sleep
+from dotenv import load_dotenv
+load_dotenv()
 
 from fastapi import FastAPI, HTTPException
 from modules.database_functions import *
 from modules.calc_functions import *
+
 
 app = FastAPI()
 
